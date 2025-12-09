@@ -1,0 +1,33 @@
+enum PaymentStatus {
+  PENDING // Aguardando pagamento
+  PROCESSING // Processando
+  PAID // Pago
+  FAILED // Falhou
+  CANCELLED // Cancelado
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Abacate Pay data
+  billingId String        @unique // ID da cobrança no Abacate Pay
+  amount    Int // Em centavos
+  status    PaymentStatus @default(PENDING)
+
+  // Webhook rastreamento
+  webhookLog WebhookLog? @relation("PaymentWebhook")
+
+  // Rastreamento
+  paidAt        DateTime?
+  failureReason String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([billingId])
+  @@index([status])
+  @@index([createdAt])
+}

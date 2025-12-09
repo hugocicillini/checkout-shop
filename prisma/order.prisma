@@ -1,0 +1,29 @@
+enum OrderStatus {
+  PENDING // Aguardando pagamento
+  PROCESSING // Processando
+  PAID // Pagamento confirmado
+  FAILED // Pagamento falhou
+  CANCELLED // Cancelado
+}
+
+model Order {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Order data
+  status OrderStatus @default(PENDING) // pending, processing, paid, failed
+  total  Int // Total em centavos (calculado)
+
+  // Relations
+  items   OrderItem[]
+  payment Payment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}

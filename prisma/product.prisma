@@ -1,0 +1,16 @@
+model Product {
+  id          String  @id @default(cuid())
+  name        String  @db.VarChar(255)
+  description String? @db.Text
+  price       Int // Em centavos (R$ 10,00 = 1000)
+  quantity    Int // Estoque disponível
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  orderItems OrderItem[]
+
+  @@index([name])
+  @@index([createdAt])
+}

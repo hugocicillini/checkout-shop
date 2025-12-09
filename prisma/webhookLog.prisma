@@ -1,0 +1,40 @@
+enum WebhookStatus {
+  PENDING // Recebido mas não processado
+  PROCESSING // Em processamento
+  PROCESSED // Processado com sucesso
+  FAILED // Falhou após múltiplas tentativas
+}
+
+model WebhookLog {
+  id String @id @default(cuid())
+
+  // Webhook identification
+  billingId String        @unique
+  event     String // "billing.paid", etc
+  status    WebhookStatus @default(PENDING)
+
+  // Webhook data
+  payload Json  @db.JsonB // Payload completo do webhook
+  headers Json? @db.JsonB // Headers do webhook
+
+  // Payment relation
+  paymentId String?  @unique
+  payment   Payment? @relation("PaymentWebhook", fields: [paymentId], references: [id], onDelete: SetNull)
+
+  // Rastreamento
+  attempts      Int       @default(0)
+  lastAttemptAt DateTime?
+  nextRetryAt   DateTime?
+  lastError     String?   @db.Text
+  failureReason String?   @db.Text
+
+  receivedAt  DateTime  @default(now())
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([billingId])
+  @@index([status])
+  @@index([event])
+  @@index([receivedAt])
+}

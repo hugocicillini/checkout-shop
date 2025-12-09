@@ -1,0 +1,27 @@
+model Account {
+  id        String @id @default(cuid())
+  accountId String @unique
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // type       String  @default("credential") // "oauth", "email", "credential"
+  providerId String  // "credential", "google", "github", etc
+
+  // OAuth tokens
+  accessToken  String? @db.Text
+  refreshToken String? @db.Text
+  idToken      String? @db.Text
+
+  // Expiração dos tokens
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+
+  scope    String? @db.Text
+  password String? // Para "credential" provider
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}

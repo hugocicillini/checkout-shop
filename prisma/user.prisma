@@ -1,0 +1,17 @@
+model User {
+  id            String  @id @default(cuid())
+  name          String?
+  email         String  @unique
+  emailVerified Boolean @default(false)
+  image         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  accounts Account[]
+  sessions Session[]
+  orders   Order[]
+
+  @@index([email])
+}
