@@ -1,8 +1,8 @@
 // src/app/cart/page.tsx
 "use client";
 
-import { CartItemRow } from "@/components/CartItemRow";
-import { CartSummary } from "@/components/CartSummary";
+import { CartItemRow } from "@/components/checkout/CartItemRow";
+import { CartSummary } from "@/components/checkout/CartSummary";
 import { getCart } from "@/lib/cart";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";

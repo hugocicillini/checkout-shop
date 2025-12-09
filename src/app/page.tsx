@@ -1,4 +1,4 @@
-import { ProductGrid } from "@/components/ProductGrid";
+import { ProductGrid } from "@/components/products/ProductGrid";
 
 async function getProducts() {
   try {

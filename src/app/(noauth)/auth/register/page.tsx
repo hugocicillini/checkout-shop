@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signUp } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,16 +18,22 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { authClient } from "@/lib/auth-client";
 
-const loginSchema = z.object({
-  email: z.email("Email inválido"),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
-});
+const registerSchema = z
+  .object({
+    name: z.string().min(2, "Nome deve ter no mínimo 2 caracteres"),
+    email: z.email("Email inválido"),
+    password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,24 +41,24 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
 
     try {
-      await authClient.signIn.email({
+      await signUp.email({
+        name: data.name,
         email: data.email,
         password: data.password,
       });
 
-      toast.success("Login realizado com sucesso!");
-      router.push("/");
-      router.refresh();
+      toast.success("Conta criada com sucesso!");
+      router.push("/auth/login");
     } catch (error: unknown) {
-      toast.error("Credenciais inválidas");
+      toast.error("Erro ao criar conta");
     } finally {
       setIsLoading(false);
     }
@@ -61,13 +68,27 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Login</CardTitle>
+          <CardTitle className="text-2xl font-bold">Criar conta</CardTitle>
           <CardDescription>
-            Entre com seu email e senha para acessar sua conta
+            Preencha os dados abaixo para criar sua conta
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Seu nome"
+                {...register("name")}
+                disabled={isLoading}
+              />
+              {errors.name && (
+                <p className="text-sm text-red-600">{errors.name.message}</p>
+              )}
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -98,17 +119,33 @@ export default function LoginPage() {
               )}
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmar senha</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                {...register("confirmPassword")}
+                disabled={isLoading}
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-600">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Entrando..." : "Entrar"}
+              {isLoading ? "Criando conta..." : "Criar conta"}
             </Button>
 
             <div className="text-center text-sm text-gray-600">
-              Não tem uma conta?{" "}
+              Já tem uma conta?{" "}
               <Link
-                href="/auth/register"
+                href="/auth/login"
                 className="text-blue-600 hover:underline"
               >
-                Registre-se
+                Faça login
               </Link>
             </div>
           </form>
