@@ -8,7 +8,12 @@ const nextConfig: NextConfig = {
     tsconfigPath: "./tsconfig.json",
   },
   images: {
-    remotePatterns: [{ hostname: "cdn.shadcnstudio.com" }],
+    remotePatterns: [
+      { hostname: "cdn.shadcnstudio.com" },
+      {
+        hostname: "encrypted-tbn3.gstatic.com",
+      },
+    ],
   },
 };
 
