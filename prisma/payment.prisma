@@ -6,6 +6,11 @@ enum PaymentStatus {
   CANCELLED // Cancelado
 }
 
+enum PaymentMethod {
+  PIX
+  CARD
+}
+
 model Payment {
   id String @id @default(cuid())
 
@@ -13,21 +18,35 @@ model Payment {
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   // Abacate Pay data
-  billingId String        @unique // ID da cobrança no Abacate Pay
+  billingId String         @unique // ID da cobrança no Abacate Pay
   amount    Int // Em centavos
-  status    PaymentStatus @default(PENDING)
+  status    PaymentStatus  @default(PENDING)
+  method    PaymentMethod? // ✅ Adicionar método de pagamento
+  provider  String         @default("ABACATE_PAY") // ✅ Provider
+
+  // PIX específico
+  pixQrCode    String? @db.Text // ✅ QR Code PIX (se aplicável)
+  pixQrCodeUrl String? // ✅ URL do QR Code
+
+  // URLs de retorno
+  checkoutUrl   String? @db.Text // ✅ URL do checkout
+  returnUrl     String? @db.Text // ✅ URL de retorno
+  completionUrl String? @db.Text // ✅ URL de conclusão
 
   // Webhook rastreamento
   webhookLog WebhookLog? @relation("PaymentWebhook")
 
   // Rastreamento
-  paidAt        DateTime?
+  paidAt        DateTime? @db.Timestamp(6)
   failureReason String?   @db.Text
+  metadata      Json? // ✅ Dados extras do AbacatePay
 
+  expiresAt DateTime? @db.Timestamp(6)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([billingId])
   @@index([status])
   @@index([createdAt])
+  @@index([method]) // ✅ Index por método
 }

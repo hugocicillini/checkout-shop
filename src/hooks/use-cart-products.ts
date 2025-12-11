@@ -1,3 +1,6 @@
+"use client";
+
+import { getCartWithDetails } from "@/actions/cart.actions";
 import { CartItem } from "@/app/types/cart";
 import { Product } from "@/app/types/product";
 import { getCart } from "@/lib/cart";
@@ -20,22 +23,14 @@ export function useCartProducts() {
           return;
         }
 
-        const productPromises = cartItems.map((item) =>
-          fetch(`/api/products/${item.productId}`)
-            .then((res) => res.json())
-            .then((product) => ({
-              ...product,
-              quantity: item.quantity,
-            }))
-        );
+        // ✅ Usar Server Action em vez de fetch
+        const result = await getCartWithDetails(cartItems);
 
-        const results = await Promise.allSettled(productPromises);
-
-        const fetchedProducts = results
-          .filter((result) => result.status === "fulfilled")
-          .map((result) => (result as PromiseFulfilledResult<Product>).value);
-
-        setProducts(fetchedProducts);
+        if (result.success && result.data) {
+          setProducts(result.data);
+        } else {
+          console.error("Erro ao buscar produtos:", result.error);
+        }
       } catch (error) {
         console.error("Erro ao buscar produtos do carrinho:", error);
       } finally {

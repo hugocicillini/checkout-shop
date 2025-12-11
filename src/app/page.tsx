@@ -1,21 +1,8 @@
+import { getProducts } from "@/actions/product.actions";
 import { ProductGrid } from "@/components/products/ProductGrid";
 
-async function getProducts() {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/products`, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) throw new Error("Erro ao buscar produtos");
-    return res.json();
-  } catch (error) {
-    console.error("Erro:", error);
-    return [];
-  }
-}
-
 export default async function Home() {
-  const products = await getProducts();
+  const result = await getProducts();
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -25,7 +12,19 @@ export default async function Home() {
           <p className="text-gray-600 mt-2">Confira nossos produtos</p>
         </div>
 
-        <ProductGrid products={products} />
+        {result.success ? (
+          result.data && result.data.length > 0 ? (
+            <ProductGrid products={result.data} />
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">Nenhum produto disponível</p>
+            </div>
+          )
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-red-500 text-lg">{result.error}</p>
+          </div>
+        )}
       </div>
     </main>
   );

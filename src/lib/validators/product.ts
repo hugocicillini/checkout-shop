@@ -7,6 +7,7 @@ export const createProductSchema = z.object({
     .min(3, "Nome deve ter pelo menos 3 caracteres"),
   description: z.string().optional().nullable(),
   price: z.number().positive("Preço deve ser positivo"),
+  image: z.url("Imagem deve ser uma URL válida").optional().nullable(),
   quantity: z.number().int().nonnegative("Quantidade deve ser positiva"),
 });
 

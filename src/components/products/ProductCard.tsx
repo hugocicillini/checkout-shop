@@ -1,5 +1,6 @@
 "use client";
 
+import { Product } from "@/app/types/product";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,21 +13,13 @@ import { addToCart } from "@/lib/cart";
 import { useState } from "react";
 import { toast } from "sonner";
 
-interface ProductCardProps {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-}
-
 export function ProductCard({
   id,
   name,
   description,
   price,
   quantity,
-}: ProductCardProps) {
+}: Product) {
   const [isAdding, setIsAdding] = useState(false);
 
   const handleAddToCart = () => {

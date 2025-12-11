@@ -7,11 +7,8 @@ import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { SecurityBadge } from "@/components/checkout/SecurityBadge";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { useCartProducts } from "@/hooks/use-cart-products";
+import { useOrderTotals } from "@/hooks/use-order-totals";
 import { getCart, removeFromCart, updateQuantity } from "@/lib/cart";
-import {
-  DEFAULT_SHIPPING_COST,
-  FREE_SHIPPING_THRESHOLD,
-} from "@/lib/constants/checkout";
 import { useCallback, useState } from "react";
 
 export default function CheckoutPage() {
@@ -19,15 +16,8 @@ export default function CheckoutPage() {
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
 
   const cartItems = getCart();
-
-  // Cálculos
-  const subtotal = products.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const shipping =
-    subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DEFAULT_SHIPPING_COST;
-  const total = subtotal + shipping;
+  
+  const { subtotal, shipping, total } = useOrderTotals(products);
 
   const handleUpdateQuantity = useCallback(
     (productId: string, increment: boolean) => {
